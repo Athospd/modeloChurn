@@ -13,7 +13,7 @@ conexao <- dbConnect(
 # essa conexão poderia ser com qualquer banco!
 # desde que eu tivesse um usuario, senha, acesso a um endpoint do banco etc
 
-dbGetQuery(conexao, "SELECT * FROM dim_assinatura")
+tabela <- dbGetQuery(conexao, "SELECT * FROM dim_assinatura")
 # eu poderia pegar dados pra analisar direto de queries como essas ^
 
 # ou eu poderia escrever codigo em R que é traduzido para SQL on the fly:
@@ -54,7 +54,7 @@ fato_pag_aprovado <- tbl(conexao, "fato_pag_aprovado") |>
   collect() |>
   mutate(
     data_referencia = as.Date(data_referencia, "1970-01-01"),
-    valor_pago = valor_pago/100
+    valor_pago = valor_pago/1000
   )
 # digamos que a gente tenha ido verificar se a origem é essa mesmo
 # com a TI e com a área responsável pelo dado e é mesmo...
@@ -304,7 +304,14 @@ tabela_churn <- registro_pagamentos_esperados |>
       TRUE ~ NA
     )
   ) |>
+  ungroup() |>
+  left_join(dim_assinatura) |>
   mutate(
+    data_ultima_inad = case_when(
+      tipo_assinatura == "anual" & !is.na(data_ultima_inad) ~ as.Date("2024-03-01"),
+      TRUE ~ data_ultima_inad),
+    # nos casos anuais a data de ultima inadimplencia deve ser 2024-03 porque
+    # nao encontramos cura na analise feita em 29/04
     churn = case_when(
       (data_ultima_inad-data_primeira_inad) >= 30 ~ 1,
       TRUE ~ 0
@@ -323,3 +330,56 @@ tabela_churn |>
   ggplot(aes(x = data_primeira_inad, y = n)) +
   geom_point() +
   geom_line()
+
+## modelo para prever o churn
+
+tbl(conexao, "fato_behavior") |>
+  collect() |>
+  mutate(
+    mes_ref = as.Date(mes_ref, "1970-01-01")
+  ) |>
+  View()
+
+data_ref <- "2024-03-01"
+
+dados_behavior_varias_datas <- tbl(conexao, "fato_behavior") |>
+  collect() |>
+  mutate(
+    mes_ref = as.Date(mes_ref, "1970-01-01")
+  ) |>
+  group_by(id_cliente) |>
+  mutate(
+    var_lag_mensag = lag(numero_mensagens_portal),
+    var_lag_evento = lag(participacao_evento),
+    max_mensag = lag(cummax(numero_mensagens_portal)),
+    max_evento = lag(cummax(participacao_evento)),
+    min_mensag = lag(cummin(numero_mensagens_portal)),
+    min_evento = lag(cummin(participacao_evento))
+  ) |>
+  select(
+    -numero_mensagens_portal, -participacao_evento
+  )
+
+dim_cliente <- tbl(conexao, "dim_cliente") |>
+  collect()
+
+valor_pago <- fato_pag_aprovado |>
+  group_by(id_assinatura) |>
+  summarise(
+    valor_pago_medio = mean(valor_pago)
+  ) |>
+  ungroup()
+
+base_modelagem <- tabela_churn |>
+  mutate(
+    data_ref_behavior = case_when(
+      !is.na(data_primeira_inad) ~ data_primeira_inad %m-% months(1),
+      TRUE ~ as.Date(data_ref)
+    )
+  ) |>
+  left_join(dim_assinatura) |>
+  left_join(dim_cliente) |>
+  left_join(valor_pago) |>
+  left_join(dados_behavior_varias_datas, by = c("id_cliente", "data_ref_behavior" = "mes_ref"))
+
+saveRDS(base_modelagem, "base_modelagem.rds")
