@@ -1,6 +1,6 @@
 FROM rstudio/plumber
 
-RUN git clone https://github.com/curso-r/modeloChurn /tmp/api/
+RUN git clone https://github.com/azeloc/modeloChurn /tmp/api/
 WORKDIR /tmp/api/
 
 RUN apt-get update -qq && apt-get install -y \
