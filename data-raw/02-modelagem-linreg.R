@@ -113,7 +113,6 @@ modelo_vigente <- workflow(
 ) |>
   fit(dados)
 
-
 # importancia das variaveis -----------------------------------------------
 
 library(vip)
