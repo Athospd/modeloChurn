@@ -1,3 +1,4 @@
+devtools::load_all()
 library(plumber)
 
 #* @apiTitle API do modelo de Churn
