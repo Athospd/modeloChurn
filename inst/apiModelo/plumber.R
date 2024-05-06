@@ -2,6 +2,7 @@ library(plumber)
 
 #* @apiTitle API do modelo de Churn
 #* @apiDescription Esta API recebe dados sobre a assinatura do cliente
+
 #* Devolve diagnóstico sobre a possibilidade de Churn
 #* @param tipo_assinatura:chr 'mensal' ou 'anual'
 #* @param sexo:chr 'M' ou 'F'
@@ -16,7 +17,6 @@ library(plumber)
 #* @param min_evento:dbl Número mínimo de eventos em que o cliente participou em um único mês
 #* @param idade_assinatura:dbl Número de meses desde o primeiro pagamento da assinatura
 #* @param observacao_recente:chr 'TRUE' se só houve um pagamento até agora e 'FALSE' em caso contrário
-#*
 #* @post /gera_previsao
 function(tipo_assinatura,
          sexo,
