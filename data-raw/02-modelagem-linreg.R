@@ -1,6 +1,7 @@
 # pacotes -----------------------------------------------------------------
 
 library(tidyverse)
+library(lubridate)
 library(tidymodels)
 set.seed(20240410)
 
@@ -48,6 +49,7 @@ teste <- testing(treino_e_teste)
 # receita -----------------------------------------------------------------
 
 receita <- recipe(churn ~ ., data = treino) |>
+  step_novel(all_nominal_predictors()) |>
   step_normalize(all_numeric()) |>
   step_dummy(all_nominal_predictors())
 
