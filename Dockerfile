@@ -6,6 +6,5 @@ WORKDIR /home/api/
 RUN Rscript -e "install.packages('tidymodels')"
 RUN Rscript -e "install.packages('devtools')"
 RUN Rscript -e "install.packages('glmnet')"
-RUN ls /home/api
 
 CMD ["/home/api/inst/apiModelo/plumber.R"]

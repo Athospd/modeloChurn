@@ -49,7 +49,7 @@ function(tipo_assinatura,
     observacao_recente = observacao_recente
   )
 
-  lista_resposta$previsao_churn_1m = aplica_modelo(
+  resposta <- aplica_modelo(
     tipo_assinatura = tipo_assinatura,
     sexo = sexo,
     idade = as.numeric(idade),
@@ -63,7 +63,11 @@ function(tipo_assinatura,
     min_evento = as.numeric(min_evento),
     idade_assinatura = as.numeric(idade_assinatura),
     observacao_recente = observacao_recente
-    )
+  )
+
+  lista_resposta$previsao_churn_1m = resposta$predicao
+
+  lista_resposta$prob = resposta$prob
 
   return(lista_resposta)
 }

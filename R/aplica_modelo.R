@@ -30,5 +30,9 @@ aplica_modelo <- function(
             observacao_recente
           ), type = "prob")$.pred_1
 
-  if(prob_churn > 0.7){return("Churn")}else{return("Não churn")}
+  if(prob_churn > 0.7){
+    return(list(predicao = "Churn", prob = prob_churn))
+  } else {
+    return(list(predicao = "N\u00e3o Churn", prob = prob_churn))
+  }
 }
