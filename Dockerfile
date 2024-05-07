@@ -1,10 +1,10 @@
 FROM rstudio/plumber
 
-RUN git clone https://github.com/azeloc/modeloChurn /tmp/api/
-WORKDIR /tmp/api/
+RUN git clone https://github.com/azeloc/modeloChurn /home/api/
+WORKDIR /home/api/
 
 RUN Rscript -e "install.packages('tidymodels')"
 RUN Rscript -e "install.packages('randomForest')"
-RUN ls /tmp/api
+RUN ls /home/api
 
-CMD ["/tmp/api/inst/apiModelo/plumber.R"]
+CMD ["/home/api/inst/apiModelo/plumber.R"]
