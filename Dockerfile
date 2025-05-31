@@ -9,4 +9,4 @@ RUN Rscript -e "install.packages('glmnet')"
 
 EXPOSE 8080
 
-CMD ["/home/api/inst/apiModelo/plumber.R"]
+CMD ["Rscript", "-e", "r <- plumb('/home/api/inst/apiModelo/plumber.R'); r$run(host = '0.0.0.0', port = 8080)"]
